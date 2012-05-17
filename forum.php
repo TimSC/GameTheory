@@ -2,15 +2,11 @@
 require_once("state.php");
 session_start();
 
+//Get game state databases
 $playerNameDb = new GlobalState(".private/playerName.db");
 $playerActivityDb = new GlobalState(".private/playerActivity.db");
-//echo $state->__isset('num');
-//echo(isset($state['num']));
-//$state['num'] = array(5);
-//echo $state['num'];
-//unset($state['2']);
-//print_r($state->GetKeys());
 
+//Process form to set player name
 if(isset($_POST['name']))
 {
 	$_SESSION['name'] = $_POST['name'];
@@ -18,11 +14,12 @@ if(isset($_POST['name']))
 }
 $playerActivityDb[session_id()] = time();
 
+//Get List of players
 $playerList = $playerNameDb->GetKeys();
 ?>
 <html>
 <head>
-
+<title>Game Theory</title>
 </head>
 <body>
 <h1>Game Theory</h1>
@@ -34,7 +31,9 @@ $playerList = $playerNameDb->GetKeys();
 <td>Name</td>
 <td>Last Active</td>
 </tr>
+
 <?php
+//Print rows for players in the game
 foreach($playerList as $sesId)
 {
 ?>
@@ -45,6 +44,7 @@ foreach($playerList as $sesId)
 <?php
 }
 ?>
+
 </table> 
 <p><a href="index.php">Exit Session</a></p>
 </body>

@@ -4,7 +4,7 @@ session_destroy();
 ?>
 <html>
 <head>
-
+<title>Game Theory</title>
 </head>
 <body>
 <h1>Game Theory</h1>
