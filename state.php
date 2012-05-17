@@ -69,6 +69,13 @@ class GlobalState implements arrayaccess
 		return $out;
 	}
 
+	public function Pop($val)
+	{
+		$key = uniqid();
+		while($this->offsetExists($key)) $key = uniqid(); //Ensure uniqueness
+		$this->offsetSet($key,$val);
+		return $key;
+	}
 }
 
 ?>
