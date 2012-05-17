@@ -23,7 +23,9 @@ $playerList = $playerNameDb->GetKeys();
 </head>
 <body>
 <h1>Game Theory</h1>
-<p>Welcome <?php echo $_SESSION['name']; ?>
+<p>Welcome <?php echo $_SESSION['name']; ?></p>
+
+<p><a href="play.php">Play</a></p>
 
 <table border="1">
 
