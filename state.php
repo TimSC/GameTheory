@@ -16,6 +16,10 @@ class GlobalState implements arrayaccess
 
 		//Open Sqlite database
 		$this->db = new SQLite3($fina);
+
+		//Create table, if it does not already exist
+		$sql = "CREATE TABLE IF NOT EXISTS state (key String, val String)";
+		$this->db->exec($sql) or die("SQL Failed");
 	}
 
 	function __destruct()
