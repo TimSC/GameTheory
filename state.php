@@ -7,10 +7,14 @@ class GlobalState implements arrayaccess
 
 	function __construct($fina)
 	{
-		//Get game state
-		$this->fi = fopen($fina,"r+");
+		//Lock database file
+		if(file_exists($fina))
+			$this->fi = fopen($fina,"r+");
+		else
+			$this->fi = fopen($fina,"w+");
 		flock($this->fi, LOCK_EX);
 
+		//Open Sqlite database
 		$this->db = new SQLite3($fina);
 	}
 
@@ -24,9 +28,9 @@ class GlobalState implements arrayaccess
 	public function offsetSet($k, $v)
 	{
 		if ($this->offsetExists($k))
-			$sql = 'UPDATE state SET val=\''.$this->db->escapeString($v).'\' WHERE key=\''.$this->db->escapeString($k)."'";
+			$sql = 'UPDATE state SET val=\''.$this->db->escapeString(serialize($v)).'\' WHERE key=\''.$this->db->escapeString($k)."'";
 		else
-			$sql = "INSERT INTO state (key, val) VALUES ('".$this->db->escapeString($k)."', '".$this->db->escapeString($v)."')";	
+			$sql = "INSERT INTO state (key, val) VALUES ('".$this->db->escapeString($k)."', '".$this->db->escapeString(serialize($v))."')";	
 		$this->db->exec($sql) or die("SQL Failed");
 	}
 
@@ -34,7 +38,7 @@ class GlobalState implements arrayaccess
 	{
 		$results = $this->db->query('SELECT * FROM state WHERE key=\''.$this->db->escapeString($k)."'");
 		$row = $results->fetchArray();
-		return $row['val'];
+		return unserialize($row['val']);
 	}
 
 	public function offsetExists($k)
