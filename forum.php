@@ -18,6 +18,7 @@ if(isset($_POST['name']))
 }
 $playerActivityDb[session_id()] = time();
 
+$playerList = $playerNameDb->GetKeys();
 ?>
 <html>
 <head>
@@ -27,8 +28,24 @@ $playerActivityDb[session_id()] = time();
 <h1>Game Theory</h1>
 <p>Welcome <?php echo $_SESSION['name']; ?>
 
+<table border="1">
 
-
+<tr>
+<td>Name</td>
+<td>Last Active</td>
+</tr>
+<?php
+foreach($playerList as $sesId)
+{
+?>
+<tr>
+<td><?php echo $playerNameDb[$sesId];?></td>
+<td><?php echo time() - $playerActivityDb[$sesId];?> seconds ago</td>
+</tr>
+<?php
+}
+?>
+</table> 
 <p><a href="index.php">Exit Session</a></p>
 </body>
 </html>
