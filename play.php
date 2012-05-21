@@ -19,18 +19,6 @@ $playerActivityDb[session_id()] = time();
 $gameid = Null;
 if (isset($_GET['gameid'])) $gameid = $_GET['gameid'];
 
-//Determine which player 
-if($gameid == Null)
-	$gameid = $nextGameDb[session_id()];
-$playerNum = 0;
-$game = Null;
-if($gameid != Null)
-{
-	$game = $gamesDb[$gameid];
-	if(session_id() == $game['player1']) $playerNum = 1;
-	if(session_id() == $game['player2']) $playerNum = 2;
-}
-
 //Process next game request
 $nextGame = $nextGameDb[session_id()];
 if(isset($_GET['nextgame']) and $nextGame != Null)
@@ -47,6 +35,18 @@ if(isset($_GET['nextgame']) and $nextGame != Null)
 		$game = Null;
 	}
 
+}
+
+//Determine which player 
+if($gameid == Null)
+	$gameid = $nextGameDb[session_id()];
+$playerNum = 0;
+$game = Null;
+if($gameid != Null)
+{
+	$game = $gamesDb[$gameid];
+	if(session_id() == $game['player1']) $playerNum = 1;
+	if(session_id() == $game['player2']) $playerNum = 2;
 }
 
 //Process gamer game response
@@ -141,10 +141,10 @@ if($nextGame == Null)
 	
 		//Update database with arranged game
 		$game = array('player1'=>session_id(),'player2'=>$nextOpponent,'player1response'=>Null,'player2response'=>Null);
-		$gameId = $gamesDb->Pop($game);
-		$nextGameDb[session_id()] = $gameId;
-		$nextGameDb[$nextOpponent] = $gameId;
-		$nextGame = $gameId;
+		$gameid = $gamesDb->Pop($game);
+		$nextGameDb[session_id()] = $gameid;
+		$nextGameDb[$nextOpponent] = $gameid;
+		$nextGame = $gameid;
 		$playerNum = 1;
 	}
 }
@@ -260,7 +260,7 @@ if($game != Null)
 if(1) //Permalink
 {
 ?>
-<a href="play?gameid=<?php echo $nextGame; ?>">Permalink</a>
+<a href="play?gameid=<?php echo $gameid; ?>">Permalink</a>
 
 <?php
 }
