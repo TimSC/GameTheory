@@ -152,6 +152,7 @@ if($nextGame == Null)
 		$nextGameDb[session_id()] = $gameId;
 		$nextGameDb[$nextOpponent] = $gameId;
 		$nextGame = $gameId;
+		$playerNum = 1;
 	}
 }
 else
@@ -226,7 +227,7 @@ if($game != Null)
 elseif(!$gameOver)
 {
 ?>
-<p>Waiting for other player</p>
+<p>Waiting for other player. <a href="play.php">Reload</a></p>
 <?php
 }
 
