@@ -21,6 +21,20 @@ if(!isset($_SESSION['name'])) die('<a href="index.php">Player name not set.</a>'
 if(!isset($playerActivityDb[session_id()]))
 	die('<a href="index.php">Player not registered</a>');
 
+//Remove Inactive Players
+$playerList = $playerNameDb->GetKeys();
+foreach($playerList as $sesId)
+{
+	$lastTime = time() - $playerActivityDb[$sesId];
+	if($lastTime > 60 * 60)
+	{
+		//Remove timed out player
+		unset($playerNameDb[$sesId]);
+		unset($nextGameDb[$sesId]);
+		unset($scoresDb[$sesId]);
+	}
+}
+
 //Get List of players
 $playerList = $playerNameDb->GetKeys();
 ?>
