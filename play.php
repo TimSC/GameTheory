@@ -8,6 +8,10 @@ $playerActivityDb = new GlobalState(".private/playerActivity.db");
 $nextGameDb = new GlobalState(".private/nextGame.db");
 $gamesDb = new GlobalState(".private/games.db");
 
+if(!isset($_SESSION['name'])) die("Player name not set");
+if(!isset($playerActivityDb[session_id()]))
+	die("Player not registered");
+
 $playerActivityDb[session_id()] = time();
 
 //Determine which player 
@@ -108,13 +112,13 @@ if($game != Null)
 </head>
 <body>
 <h1>Game Theory</h1>
-<h2><span style="color: red;"><?php echo $player1Name;?></span> vs. <span style="color: blue;"><?php echo $player2Name;?></span></h2>
 <?php
 //echo $nextGame;
 //print_r($game);
 if($game != Null)
 {
 ?>
+<h2><span style="color: red;"><?php echo $player1Name;?></span> vs. <span style="color: blue;"><?php echo $player2Name;?></span></h2>
 <form action="play.php" method="post">
 <table border="1">
 <tr>
@@ -137,6 +141,13 @@ if($game != Null)
 </form>
 <?php
 } //End of printing game to HTML
+
+if($game == Null)
+{
+?>
+<h2>Waiting for other players. <a href="play.php">Reload page</a>.</h2>
+<?php
+}
 ?>
 
 <p><a href="forum.php">Back to Forum</a></p>
