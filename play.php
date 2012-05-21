@@ -79,6 +79,7 @@ if($nextGame != Null and isset($_POST['player2']) and $playerNum == 2 and !isset
 //If game is over, show score change
 $p1GameScore = Null;
 $p2GameScore = Null;
+$gameOver = False;
 if($nextGame != Null)
 {
 	$game = $gamesDb[$nextGame];
@@ -87,6 +88,7 @@ if($nextGame != Null)
 	//Check game is over
 	if($py1res != Null and $py2res != Null)
 	{
+		$gameOver = True;
 		if($py1res == 1 and $py2res == 1) {$p1GameScore = 1; $p2GameScore = 1;}
 		if($py1res == 2 and $py2res == 1) {$p1GameScore = 2; $p2GameScore = -3;}
 		if($py1res == 1 and $py2res == 2) {$p1GameScore = -3; $p2GameScore = 2;}
@@ -216,12 +218,19 @@ if($game != Null)
 <td><span style="color: red;">-1</span>, <span style="color: blue;">-1</span></td>
 </tr>
 </table> 
-<?php if($pl1controls or $pl2controls)
+<?php if($pl1controls or $pl2controls) //Option to submit a choice
 {
 ?>
 <input type="submit" value="Submit" />
-<?php } 
-elseif($playerNum != 0)
+<?php }
+elseif(!$gameOver)
+{
+?>
+<p>Waiting for other player</p>
+<?php
+}
+
+if($playerNum != 0 and $gameOver) //Prompt for next game
 {
 ?>
 <p><a href="play.php?nextgame">Next Game</a></p>
