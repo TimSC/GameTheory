@@ -24,19 +24,43 @@ if($nextGame != Null)
 	if(session_id() == $game['player2']) $playerNum = 2;
 }
 
-//Process response
+//Process next game request
+if(isset($_GET['nextgame']) and $nextGame != Null)
+{
+	$game = $gamesDb[$nextGame];
+	$py1res = $game['player1response'];
+	$py2res = $game['player2response'];
+	//Check game is over
+	if($py1res != Null and $py2res != Null)
+	{
+		//Free player from this game
+		$nextGameDb[session_id()] = Null;
+		$nextGame = Null;
+		$game = Null;
+	}
+
+}
+
+//Process gamer game response
 $nextGame = $nextGameDb[session_id()];
-if($nextGame != Null and isset($_POST['player1']))
+if($nextGame != Null and isset($_POST['player1']) and $playerNum == 1)
 {
 	$game = $gamesDb[$nextGame];
 	
-	if ($playerNum == 0) die("Can't determine which player you are.");
-
 	//Update database with play
-	if($playerNum == 1) $game['player1response'] = $_POST['player1'];
-	if($playerNum == 2) $game['player2response'] = $_POST['player2'];
+	$game['player1response'] = $_POST['player1'];
 	$gamesDb[$nextGame] = $game;
 }
+
+if($nextGame != Null and isset($_POST['player2']) and $playerNum == 2)
+{
+	$game = $gamesDb[$nextGame];
+	
+	//Update database with play
+	$game['player2response'] = $_POST['player2'];
+	$gamesDb[$nextGame] = $game;
+}
+
 
 //If game is finished, release this player to find another game
 if($nextGame != Null)
@@ -97,13 +121,18 @@ if($game != Null)
 {
 	$player1Name = $playerNameDb[$game['player1']];
 	$player2Name = $playerNameDb[$game['player2']];
-	$py1res = $game['player1response'];
-	$py2res = $game['player2response'];
+	$py1res = Null;
+	$py2res = Null;
+	//If both players have set their answer, make it publicly viewable
+	if(isset($game['player1response']) and isset($game['player2response']))
+	{
+		$py1res = $game['player1response'];
+		$py2res = $game['player2response'];
+	}
 	//echo $py1res.",".$py2res;
 	if($playerNum==1 and $py1res == Null) $pl1controls = True;
 	if($playerNum==2 and $py2res == Null) $pl2controls = True;
 }
-
 
 ?>
 <html>
@@ -137,7 +166,16 @@ if($game != Null)
 <td><span style="color: red;">-1</span>, <span style="color: blue;">-1</span></td>
 </tr>
 </table> 
-<?php if($pl1controls or $pl2controls) echo '<input type="submit" value="Submit" />'; ?>
+<?php if($pl1controls or $pl2controls)
+{
+?>
+<input type="submit" value="Submit" />
+<?php } 
+elseif($playerNum != 0)
+{
+?>
+<p><a href="play.php?nextgame">Next Game</a></p>
+<?php } ?>
 </form>
 <?php
 } //End of printing game to HTML
