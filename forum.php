@@ -39,6 +39,7 @@ $playerList = $playerNameDb->GetKeys();
 <tr>
 <td>Name</td>
 <td>Last Active</td>
+<td>Score</td>
 </tr>
 
 <?php
@@ -49,6 +50,7 @@ foreach($playerList as $sesId)
 <tr>
 <td><?php echo $playerNameDb[$sesId];?></td>
 <td><?php echo time() - $playerActivityDb[$sesId];?> seconds ago</td>
+<td><?php echo $scoresDb[$sesId]; ?></td>
 </tr>
 <?php
 }
