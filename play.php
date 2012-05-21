@@ -221,7 +221,7 @@ if($game != Null)
 elseif(!$gameOver)
 {
 ?>
-<p>Waiting for other player. <a href="play.php">Reload</a></p>
+<p>Waiting for other player. <a href="play.php?gameid=<?php echo $gameid; ?>">Reload</a></p>
 <?php
 }
 
@@ -260,7 +260,7 @@ if($game != Null)
 if(1) //Permalink
 {
 ?>
-<a href="play?gameid=<?php echo $gameid; ?>">Permalink</a>
+<a href="play.php?gameid=<?php echo $gameid; ?>">Permalink</a>
 
 <?php
 }
