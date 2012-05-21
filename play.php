@@ -9,9 +9,9 @@ $nextGameDb = new GlobalState(".private/nextGame.db");
 $gamesDb = new GlobalState(".private/games.db");
 $scoresDb = new GlobalState(".private/scores.db");
 
-if(!isset($_SESSION['name'])) die("Player name not set");
+if(!isset($_SESSION['name'])) die('<a href="index.php">Player name not set.</a>');
 if(!isset($playerActivityDb[session_id()]))
-	die("Player not registered");
+	die('<a href="index.php">Player not registered</a>');
 
 $playerActivityDb[session_id()] = time();
 
@@ -160,6 +160,7 @@ else
 //Get details for current game
 $player1 = Null;
 $player2 = Null;
+$player1Name = Null; $player2Name = Null;
 $pl1controls = False;
 $pl2controls = False;
 if($game != Null)
@@ -174,6 +175,10 @@ if($game != Null)
 		$py1res = $game['player1response'];
 		$py2res = $game['player2response'];
 	}
+	//If player already responded to game, set privately visible selection
+	if($playerNum==1) $py1res = $game['player1response'];
+	if($playerNum==2) $py2res = $game['player2response'];
+
 	//echo $py1res.",".$py2res;
 	if($playerNum==1 and $py1res == Null) $pl1controls = True;
 	if($playerNum==2 and $py2res == Null) $pl2controls = True;
@@ -235,7 +240,7 @@ if($game == Null) //Waiting for other players HTML
 if($p1GameScore != Null and $p2GameScore != Null)
 {
 ?>
-<p>For this game, Player 1: <?php echo $p1GameScore; ?>, Player 2: <?php echo $p2GameScore; ?></p>
+<p>For this game, <?php echo $player2Name.": ".$p1GameScore; ?>, <?php echo $player2Name.": ".$p2GameScore; ?></p>
 <?php
 }
 
@@ -244,7 +249,7 @@ if($game != Null)
 	$p1TotalScore = $scoresDb[$game['player1']];
 	$p2TotalScore = $scoresDb[$game['player2']];
 ?>
-<p>Total score, Player 1: <?php echo $p1TotalScore; ?>, Player 2: <?php echo $p2TotalScore; ?></p>
+<p>Total score, <?php echo $player1Name.": ".$p1TotalScore; ?>, <?php echo $player2Name.": ".$p2TotalScore; ?></p>
 <?php
 }
 ?>

@@ -17,10 +17,9 @@ if(isset($_POST['name']))
 	$scoresDb[session_id()] = 0;
 }
 $playerActivityDb[session_id()] = time();
-if(!isset($_SESSION['name'])) die("Player name not set");
-
+if(!isset($_SESSION['name'])) die('<a href="index.php">Player name not set.</a>');
 if(!isset($playerActivityDb[session_id()]))
-	die("Player not registered");
+	die('<a href="index.php">Player not registered</a>');
 
 //Get List of players
 $playerList = $playerNameDb->GetKeys();
