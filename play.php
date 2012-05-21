@@ -249,7 +249,7 @@ if($game == Null) //Waiting for other players HTML
 if($p1GameScore != Null and $p2GameScore != Null)
 {
 ?>
-<p>For this game, <?php echo $player2Name.": ".$p1GameScore; ?>, <?php echo $player2Name.": ".$p2GameScore; ?></p>
+<p>For this game, <?php echo $player1Name.": ".$p1GameScore; ?>, <?php echo $player2Name.": ".$p2GameScore; ?></p>
 <?php
 }
 
