@@ -7,6 +7,7 @@ $playerNameDb = new GlobalState(".private/playerName.db");
 $playerActivityDb = new GlobalState(".private/playerActivity.db");
 $nextGameDb = new GlobalState(".private/nextGame.db");
 $gamesDb = new GlobalState(".private/games.db");
+$scoresDb = new GlobalState(".private/scores.db");
 
 if(!isset($_SESSION['name'])) die("Player name not set");
 if(!isset($playerActivityDb[session_id()]))
@@ -43,24 +44,57 @@ if(isset($_GET['nextgame']) and $nextGame != Null)
 
 //Process gamer game response
 $nextGame = $nextGameDb[session_id()];
-if($nextGame != Null and isset($_POST['player1']) and $playerNum == 1)
+if($nextGame != Null and isset($_POST['player1']) and $playerNum == 1 and !isset($game['player1response']))
 {
 	$game = $gamesDb[$nextGame];
 	
 	//Update database with play
 	$game['player1response'] = $_POST['player1'];
 	$gamesDb[$nextGame] = $game;
+
+	if(isset($game['player2response']))
+	{
+		//Update score
+		$p1 = $game['player1response'];
+		$p2 = $game['player2response'];
+
+			
+	}
 }
 
-if($nextGame != Null and isset($_POST['player2']) and $playerNum == 2)
+if($nextGame != Null and isset($_POST['player2']) and $playerNum == 2 and !isset($game['player2response']))
 {
 	$game = $gamesDb[$nextGame];
 	
 	//Update database with play
 	$game['player2response'] = $_POST['player2'];
 	$gamesDb[$nextGame] = $game;
+
+	if(isset($game['player1response']))
+	{
+		//Update score
+		
+	}
 }
 
+//If game is over, show score change
+$p1GameScore = Null;
+$p2GameScore = Null;
+if($nextGame != Null)
+{
+	$game = $gamesDb[$nextGame];
+	$py1res = $game['player1response'];
+	$py2res = $game['player2response'];
+	//Check game is over
+	if($py1res != Null and $py2res != Null)
+	{
+		if($py1res == 1 and $py2res == 1) {$p1GameScore = 1; $p2GameScore = 1;}
+		if($py1res == 2 and $py2res == 1) {$p1GameScore = 2; $p2GameScore = -3;}
+		if($py1res == 1 and $py2res == 2) {$p1GameScore = -3; $p2GameScore = 2;}
+		if($py1res == 2 and $py2res == 2) {$p1GameScore = -1; $p2GameScore = -1;}
+	}
+
+}
 
 //If game is finished, release this player to find another game
 if($nextGame != Null)
@@ -180,10 +214,17 @@ elseif($playerNum != 0)
 <?php
 } //End of printing game to HTML
 
-if($game == Null)
+if($game == Null) //Waiting for other players HTML
 {
 ?>
 <h2>Waiting for other players. <a href="play.php">Reload page</a>.</h2>
+<?php
+}
+
+if($p1GameScore != Null and $p2GameScore != Null)
+{
+?>
+<p>For this game, Player 1: <?php echo $p1GameScore; ?>, Player 2: <?php echo $p2GameScore; ?></p>
 <?php
 }
 ?>

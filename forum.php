@@ -6,6 +6,7 @@ session_start();
 $playerNameDb = new GlobalState(".private/playerName.db");
 $playerActivityDb = new GlobalState(".private/playerActivity.db");
 $nextGameDb = new GlobalState(".private/nextGame.db");
+$scoresDb = new GlobalState(".private/scores.db");
 
 //Process form to set player name
 if(isset($_POST['name']))
@@ -13,6 +14,7 @@ if(isset($_POST['name']))
 	$_SESSION['name'] = $_POST['name'];
 	$playerNameDb[session_id()] = $_POST['name'];
 	$nextGameDb[session_id()] = Null;
+	$scoresDb[session_id()] = 0;
 }
 $playerActivityDb[session_id()] = time();
 if(!isset($_SESSION['name'])) die("Player name not set");
