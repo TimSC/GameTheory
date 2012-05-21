@@ -18,6 +18,7 @@ $playerActivityDb[session_id()] = time();
 //Determine which player 
 $nextGame = $nextGameDb[session_id()];
 $playerNum = 0;
+$game = Null;
 if($nextGame != Null)
 {
 	$game = $gamesDb[$nextGame];
@@ -43,6 +44,7 @@ if(isset($_GET['nextgame']) and $nextGame != Null)
 }
 
 //Process gamer game response
+$updateScore = False;
 $nextGame = $nextGameDb[session_id()];
 if($nextGame != Null and isset($_POST['player1']) and $playerNum == 1 and !isset($game['player1response']))
 {
@@ -55,10 +57,7 @@ if($nextGame != Null and isset($_POST['player1']) and $playerNum == 1 and !isset
 	if(isset($game['player2response']))
 	{
 		//Update score
-		$p1 = $game['player1response'];
-		$p2 = $game['player2response'];
-
-			
+		$updateScore = True;
 	}
 }
 
@@ -73,7 +72,7 @@ if($nextGame != Null and isset($_POST['player2']) and $playerNum == 2 and !isset
 	if(isset($game['player1response']))
 	{
 		//Update score
-		
+		$updateScore = True;
 	}
 }
 
@@ -94,6 +93,18 @@ if($nextGame != Null)
 		if($py1res == 2 and $py2res == 2) {$p1GameScore = -1; $p2GameScore = -1;}
 	}
 
+}
+
+//If game is over, update total scores
+if($updateScore)
+{
+	$p1Score = $scoresDb[$game['player1']];
+	$p1Score += $p1GameScore;
+	$scoresDb[$game['player1']] = $p1Score;
+
+	$p2Score = $scoresDb[$game['player2']];
+	$p2Score += $p2GameScore;
+	$scoresDb[$game['player2']] = $p2Score;
 }
 
 //If game is finished, release this player to find another game
@@ -225,6 +236,15 @@ if($p1GameScore != Null and $p2GameScore != Null)
 {
 ?>
 <p>For this game, Player 1: <?php echo $p1GameScore; ?>, Player 2: <?php echo $p2GameScore; ?></p>
+<?php
+}
+
+if($game != Null)
+{
+	$p1TotalScore = $scoresDb[$game['player1']];
+	$p2TotalScore = $scoresDb[$game['player2']];
+?>
+<p>Total score, Player 1: <?php echo $p1TotalScore; ?>, Player 2: <?php echo $p2TotalScore; ?></p>
 <?php
 }
 ?>
