@@ -15,18 +15,24 @@ if(!isset($playerActivityDb[session_id()]))
 
 $playerActivityDb[session_id()] = time();
 
+
+$gameid = Null;
+if (isset($_GET['gameid'])) $gameid = $_GET['gameid'];
+
 //Determine which player 
-$nextGame = $nextGameDb[session_id()];
+if($gameid == Null)
+	$gameid = $nextGameDb[session_id()];
 $playerNum = 0;
 $game = Null;
-if($nextGame != Null)
+if($gameid != Null)
 {
-	$game = $gamesDb[$nextGame];
+	$game = $gamesDb[$gameid];
 	if(session_id() == $game['player1']) $playerNum = 1;
 	if(session_id() == $game['player2']) $playerNum = 2;
 }
 
 //Process next game request
+$nextGame = $nextGameDb[session_id()];
 if(isset($_GET['nextgame']) and $nextGame != Null)
 {
 	$game = $gamesDb[$nextGame];
@@ -80,9 +86,9 @@ if($nextGame != Null and isset($_POST['player2']) and $playerNum == 2 and !isset
 $p1GameScore = Null;
 $p2GameScore = Null;
 $gameOver = False;
-if($nextGame != Null)
+if($gameid != Null)
 {
-	$game = $gamesDb[$nextGame];
+	$game = $gamesDb[$gameid];
 	$py1res = $game['player1response'];
 	$py2res = $game['player2response'];
 	//Check game is over
@@ -109,21 +115,8 @@ if($updateScore)
 	$scoresDb[$game['player2']] = $p2Score;
 }
 
-//If game is finished, release this player to find another game
-if($nextGame != Null)
-{
-	$game = $gamesDb[$nextGame];
-	$gameFinishedButActive = False;
-	if($game != Null and $game['player1response'] != Null and $game['player2response'] != Null and $playerNum != 0)
-	{
-		//echo "Player ".$playerNum." done";
-		$gameFinishedButActive = True;
-	}
-}
-
 //Determine next game
 $nextGame = $nextGameDb[session_id()];
-$game = Null;
 if($nextGame == Null)
 {
 	//Get List of players
@@ -161,6 +154,7 @@ else
 }
 
 //Get details for current game
+$game = $gamesDb[$gameid];
 $player1 = Null;
 $player2 = Null;
 $player1Name = Null; $player2Name = Null;
@@ -260,6 +254,14 @@ if($game != Null)
 	$p2TotalScore = $scoresDb[$game['player2']];
 ?>
 <p>Total score, <?php echo $player1Name.": ".$p1TotalScore; ?>, <?php echo $player2Name.": ".$p2TotalScore; ?></p>
+<?php
+}
+
+if(1) //Permalink
+{
+?>
+<a href="play?gameid=<?php echo $nextGame; ?>">Permalink</a>
+
 <?php
 }
 ?>
