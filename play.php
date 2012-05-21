@@ -140,7 +140,7 @@ if($nextGame == Null)
 		$nextOpponent = $waitingOpponents[rand(0,count($waitingOpponents)-1)];
 	
 		//Update database with arranged game
-		$game = array('player1'=>session_id(),'player2'=>$nextOpponent,'player1response'=>Null,'player2response'=>Null);
+		$game = array('player1'=>session_id(),'player2'=>$nextOpponent,'player1response'=>Null,'player2response'=>Null, 'created' => time());
 		$gameid = $gamesDb->Pop($game);
 		$nextGameDb[session_id()] = $gameid;
 		$nextGameDb[$nextOpponent] = $gameid;
@@ -257,7 +257,7 @@ if($game != Null)
 <?php
 }
 
-if(1) //Permalink
+if($game != Null) //Permalink
 {
 ?>
 <a href="play.php?gameid=<?php echo $gameid; ?>">Permalink</a>
