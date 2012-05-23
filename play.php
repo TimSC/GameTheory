@@ -2,6 +2,8 @@
 require_once("state.php");
 session_start();
 
+$gameTimeout = (5 * 60); //How long players have to respond
+
 //Get game state databases
 $playerNameDb = new GlobalState(".private/playerName.db");
 $playerActivityDb = new GlobalState(".private/playerActivity.db");
@@ -49,6 +51,22 @@ if($gameid != Null)
 	if(session_id() == $game['player2']) $playerNum = 2;
 }
 
+//A player game try to timeout a game after a certain period
+if($game != Null && isset($_GET['timeout']))
+{
+	$createdTime = $game['created'];
+	$timeRemaining = $createdTime + $gameTimeout - time();
+	if ($timeRemaining <= 0)
+	{
+		//echo "timeout";
+		//Release players from expired game
+		$nextGameDb[$game['player1']] = Null;
+		$nextGameDb[$game['player2']] = Null;
+		$game['timedout'] = True;
+		$gamesDb[$gameid] = $game;
+	}
+}
+
 //Process gamer game response
 $updateScore = False;
 $nextGame = $nextGameDb[session_id()];
@@ -60,7 +78,7 @@ if($nextGame != Null and isset($_POST['player1']) and $playerNum == 1 and !isset
 	$game['player1response'] = $_POST['player1'];
 	$gamesDb[$nextGame] = $game;
 
-	if(isset($game['player2response']))
+	if(isset($game['player2response']) and !$game['timedout'])
 	{
 		//Update score
 		$updateScore = True;
@@ -75,7 +93,7 @@ if($nextGame != Null and isset($_POST['player2']) and $playerNum == 2 and !isset
 	$game['player2response'] = $_POST['player2'];
 	$gamesDb[$nextGame] = $game;
 
-	if(isset($game['player1response']))
+	if(isset($game['player1response']) and !$game['timedout'])
 	{
 		//Update score
 		$updateScore = True;
@@ -89,6 +107,7 @@ $gameOver = False;
 if($gameid != Null)
 {
 	$game = $gamesDb[$gameid];
+	if($game['timedout']) $gameOver = True;
 	$py1res = $game['player1response'];
 	$py2res = $game['player2response'];
 	//Check game is over
@@ -140,23 +159,21 @@ if($nextGame == Null)
 		$nextOpponent = $waitingOpponents[rand(0,count($waitingOpponents)-1)];
 	
 		//Update database with arranged game
-		$game = array('player1'=>session_id(),'player2'=>$nextOpponent,'player1response'=>Null,'player2response'=>Null, 'created' => time());
-		$gameid = $gamesDb->Pop($game);
-		$nextGameDb[session_id()] = $gameid;
-		$nextGameDb[$nextOpponent] = $gameid;
-		$nextGame = $gameid;
+		$gameNew = array('player1'=>session_id(),'player2'=>$nextOpponent,
+			'player1response'=>Null,'player2response'=>Null, 
+			'created' => time(), 'timedout' => False);
+		$gameidNew = $gamesDb->Pop($gameNew);
+		$nextGameDb[session_id()] = $gameidNew;
+		$nextGameDb[$nextOpponent] = $gameidNew;
 		$playerNum = 1;
 	}
-}
-else
-{
-	$game = $gamesDb[$nextGame];
 }
 
 //Get details for current game
 $game = $gamesDb[$gameid];
 $player1 = Null;
 $player2 = Null;
+$createdTime = Null;
 $player1Name = Null; $player2Name = Null;
 $pl1controls = False;
 $pl2controls = False;
@@ -166,6 +183,7 @@ if($game != Null)
 	$player2Name = $playerNameDb[$game['player2']];
 	$py1res = Null;
 	$py2res = Null;
+	$createdTime = $game['created'];
 	//If both players have set their answer, make it publicly viewable
 	if(isset($game['player1response']) and isset($game['player2response']))
 	{
@@ -177,8 +195,8 @@ if($game != Null)
 	if($playerNum==2) $py2res = $game['player2response'];
 
 	//echo $py1res.",".$py2res;
-	if($playerNum==1 and $py1res == Null) $pl1controls = True;
-	if($playerNum==2 and $py2res == Null) $pl2controls = True;
+	if($playerNum==1 and $py1res == Null and !$gameOver) $pl1controls = True;
+	if($playerNum==2 and $py2res == Null and !$gameOver) $pl2controls = True;
 }
 
 ?>
@@ -220,9 +238,22 @@ if($game != Null)
 <?php }
 elseif(!$gameOver)
 {
+$timeRemaining = $createdTime + $gameTimeout - time();
 ?>
 <p>Waiting for other player. <a href="play.php?gameid=<?php echo $gameid; ?>">Reload</a></p>
+<?php 
+if ($timeRemaining > 0)
+{
+?>
+<p>Time remaining for other player to respond: <?php echo $timeRemaining; ?> seconds.</p>
 <?php
+}
+else
+{
+?>
+<p>The other player has not responded in time. You may <a href="play.php?gameid=<?php echo $gameid; ?>&timeout">end this game</a>.</p>
+<?php
+}
 }
 
 if($playerNum != 0 and $gameOver) //Prompt for next game
@@ -239,7 +270,8 @@ if($game == Null) //Waiting for other players HTML
 ?>
 <h2>Waiting for other players. <a href="play.php">Reload page</a>.</h2>
 <?php
-}
+
+} //End of waiting for other players
 
 if($p1GameScore != Null and $p2GameScore != Null)
 {
@@ -254,15 +286,17 @@ if($game != Null)
 	$p2TotalScore = $scoresDb[$game['player2']];
 ?>
 <p>Total score, <?php echo $player1Name.": ".$p1TotalScore; ?>, <?php echo $player2Name.": ".$p2TotalScore; ?></p>
-<?php
-}
 
-if($game != Null) //Permalink
+<p><a href="play.php?gameid=<?php echo $gameid; ?>">Permalink</a></p>
+
+<?php
+
+if($game['timedout'])
 {
 ?>
-<a href="play.php?gameid=<?php echo $gameid; ?>">Permalink</a>
-
+<p>This game timed out.</p>
 <?php
+}
 }
 ?>
 
